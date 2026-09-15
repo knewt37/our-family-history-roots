@@ -34,7 +34,9 @@ padding:12px 14px;cursor:pointer;color:var(--ink)}
 .section h3{font:700 13px Arial,sans-serif;text-transform:uppercase;letter-spacing:.09em;color:var(--accent);margin:0 0 9px}
 .rel{display:flex;flex-wrap:wrap;gap:8px}
 .rel button{border:1px solid var(--line);background:#fff;padding:8px 10px;border-radius:999px;cursor:pointer;color:var(--ink)}
-.rel button:hover{background:var(--soft)}
+.line-nav{display:flex;justify-content:space-between;align-items:center;margin:18px 0;gap:12px}
+.line-nav button{border:1px solid var(--line);background:#fff;padding:10px 16px;border-radius:999px;cursor:pointer;color:var(--ink);font:600 14px Arial,sans-serif}
+.line-nav button:hover{background:var(--soft)}
 .fact{margin:5px 0}
 .empty{color:var(--muted);font-style:italic}
 .notice{margin-top:22px;padding:14px 16px;border:1px solid var(--line);background:#fff9ed;border-radius:10px;
@@ -105,7 +107,12 @@ function showPerson(id){
    <div class="section"><h3>Siblings</h3>${relButtons(p.siblings)}</div>
    <div class="section"><h3>Spouse / Partner</h3>${relButtons(p.spouses)}</div>
    <div class="section"><h3>Children</h3>${relButtons(p.children)}</div>
- `;
+<div class="line-nav">
+  <button id="father-line">← Father’s Line</button>
+  <button id="mother-line">Mother’s Line →</button>
+</div>
+document.getElementById('father-line').onclick=()=>{if(p.parents&&p.parents[0])showPerson(p.parents[0]);};
+document.getElementById('mother-line').onclick=()=>{if(p.parents&&p.parents[1])showPerson(p.parents[1]);};
  card.querySelectorAll('[data-person]').forEach(b=>b.onclick=()=>showPerson(b.dataset.person));
  document.querySelectorAll('.person-row').forEach(b=>b.classList.toggle('active',b.dataset.id===id));
  if(innerWidth<760) card.scrollIntoView({behavior:'smooth',block:'start'});
