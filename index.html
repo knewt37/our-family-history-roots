@@ -111,6 +111,7 @@ function showPerson(id){
   <button id="father-line">← Father’s Line</button>
   <button id="mother-line">Mother’s Line →</button>
 </div>
+`;
 document.getElementById('father-line').onclick=()=>{if(p.parents&&p.parents[0])showPerson(p.parents[0]);};
 document.getElementById('mother-line').onclick=()=>{if(p.parents&&p.parents[1])showPerson(p.parents[1]);};
  card.querySelectorAll('[data-person]').forEach(b=>b.onclick=()=>showPerson(b.dataset.person));
