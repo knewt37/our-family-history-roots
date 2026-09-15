@@ -108,8 +108,8 @@ function showPerson(id){
    <div class="section"><h3>Spouse / Partner</h3>${relButtons(p.spouses)}</div>
    <div class="section"><h3>Children</h3>${relButtons(p.children)}</div>
 <div class="line-nav">
-  <button id="father-line">← Father’s Line</button>
-  <button id="mother-line">Mother’s Line →</button>
+${p.parents&&p.parents[0] ? `<button id="father-line">← Father’s Line</button>` : ''}
+${p.parents&&p.parents[1] ? `<button id="mother-line">Mother’s Line →</button>` : ''}
 </div>
 `;
 document.getElementById('father-line').onclick=()=>{if(p.parents&&p.parents[0])showPerson(p.parents[0]);};
