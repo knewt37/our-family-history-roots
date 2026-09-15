@@ -34,9 +34,29 @@ padding:12px 14px;cursor:pointer;color:var(--ink)}
 .section h3{font:700 13px Arial,sans-serif;text-transform:uppercase;letter-spacing:.09em;color:var(--accent);margin:0 0 9px}
 .rel{display:flex;flex-wrap:wrap;gap:8px}
 .rel button{border:1px solid var(--line);background:#fff;padding:8px 10px;border-radius:999px;cursor:pointer;color:var(--ink)}
-.line-nav{display:flex;justify-content:space-between;align-items:center;margin:18px 0;gap:12px}
-.line-nav button{border:1px solid var(--line);background:#fff;padding:10px 16px;border-radius:999px;cursor:pointer;color:var(--ink);font:600 14px Arial,sans-serif}
-.line-nav button:hover{background:var(--soft)}
+.line-nav{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin:24px 0 6px;
+  gap:16px;
+}
+
+.line-nav button{
+  border:2px solid var(--accent);
+  background:var(--accent);
+  color:white;
+  padding:13px 20px;
+  border-radius:999px;
+  cursor:pointer;
+  font:700 16px Arial,sans-serif;
+  box-shadow:0 3px 8px rgba(0,0,0,.15);
+}
+
+.line-nav button:hover{
+  transform:translateY(-2px);
+  box-shadow:0 5px 12px rgba(0,0,0,.20);
+}
 .fact{margin:5px 0}
 .empty{color:var(--muted);font-style:italic}
 .notice{margin-top:22px;padding:14px 16px;border:1px solid var(--line);background:#fff9ed;border-radius:10px;
