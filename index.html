@@ -115,11 +115,18 @@ function relButtons(ids){
 }
 function fact(label,obj){
  if(!obj || (!obj.date&&!obj.place)) return '';
- return `<div class="fact"><strong>${label}:</strong> ${esc([obj.date,obj.place].filter(Boolean).join(' • '))}</div>`;
-}
+let personHistory=[];
+let currentPersonId=null;
 function showPerson(id){
- const p=PEOPLE[id]; if(!p)return;
- card.innerHTML=`
+  const p=PEOPLE[id]; if(!p)return;
+
+  if(currentPersonId && currentPersonId!==id){
+    personHistory.push(currentPersonId);
+  }
+  currentPersonId=id;
+
+  card.innerHTML=`
+
    <h2>${esc(p.name)}</h2>
    <div class="life">${esc(years(p))}</div>
    ${fact('Born',p.birth)}${fact('Died',p.death)}
@@ -129,18 +136,27 @@ function showPerson(id){
    <div class="section"><h3>Children</h3>${relButtons(p.children)}</div>
 <div class="line-nav">
 ${p.parents&&p.parents[0] ? `<button id="father-line">← Father’s Line</button>` : ''}
+${personHistory.length ? `<button id="back-line">← Back</button>` : ''}
 ${p.parents&&p.parents[1] ? `<button id="mother-line">Mother’s Line →</button>` : ''}
 </div>
 `;
 document.getElementById('father-line')?.addEventListener('click',()=>showPerson(p.parents[0]));
-document.getElementById('mother-line')?.addEventListener('click',()=>showPerson(p.parents[1]));
- card.querySelectorAll('[data-person]').forEach(b=>b.onclick=()=>showPerson(b.dataset.person));
- document.querySelectorAll('.person-row').forEach(b=>b.classList.toggle('active',b.dataset.id===id));
- if(innerWidth<760) card.scrollIntoView({behavior:'smooth',block:'start'});
- location.hash=encodeURIComponent(id);
+document.getElementById('back-line')?.addEventListener('click',()=>{
+  const prev=personHistory.pop();
+  if(prev){
+    currentPersonId=null;
+    showPerson(prev);
+  }
+});
+
+  document.getElementById('mother-line')?.addEventListener('click',()=>showPerson(p.parents[1]));
+card.querySelectorAll('[data-person]').forEach(b=>b.onclick=()=>showPerson(b.dataset.person));
+document.querySelectorAll('.person-row').forEach(b=>b.classList.toggle('active',b.dataset.id===id));
+if(innerWidth<760) card.scrollIntoView({behavior:'smooth',block:'start'});
+location.hash=encodeURIComponent(id);
 }
 q.addEventListener('input',()=>renderResults(q.value));
-renderResults('');
+  renderResults('');
 if(location.hash){ const id=decodeURIComponent(location.hash.slice(1)); if(PEOPLE[id]) showPerson(id); }
 </script>
 </body>
