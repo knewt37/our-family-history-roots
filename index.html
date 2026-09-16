@@ -128,6 +128,7 @@ function showPerson(id){
   card.innerHTML=`
 
    <h2>${esc(p.name)}</h2>
+   ${personHistory.length ? `<div class="life">${personHistory.map(pid=>esc(PEOPLE[pid]?.name||'')).join(' → ')} → ${esc(p.name)}</div>` : ''}
    <div class="life">${esc(years(p))}</div>
    ${fact('Born',p.birth)}${fact('Died',p.death)}
    <div class="section"><h3>Parents</h3>${relButtons(p.parents)}</div>
@@ -141,6 +142,7 @@ ${p.parents&&p.parents[1] ? `<button id="mother-line">Mother’s Line →</butto
 </div>
 `;
 document.getElementById('father-line')?.addEventListener('click',()=>showPerson(p.parents[0]));
+  document.getElementById('mother-line')?.addEventListener('click',()=>showPerson(p.parents[1]));
 document.getElementById('back-line')?.addEventListener('click',()=>{
   const prev=personHistory.pop();
   if(prev){
@@ -149,7 +151,6 @@ document.getElementById('back-line')?.addEventListener('click',()=>{
   }
 });
 
-  document.getElementById('mother-line')?.addEventListener('click',()=>showPerson(p.parents[1]));
 card.querySelectorAll('[data-person]').forEach(b=>b.onclick=()=>showPerson(b.dataset.person));
 document.querySelectorAll('.person-row').forEach(b=>b.classList.toggle('active',b.dataset.id===id));
 if(innerWidth<760) card.scrollIntoView({behavior:'smooth',block:'start'});
