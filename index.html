@@ -1,1 +1,83 @@
-
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Our Family History Roots — Family Tree</title>
+<style>
+:root{--paper:#f7f1e5;--ink:#2f2a24;--muted:#756b60;--line:#d7c8b2;--panel:#fffdf8;--accent:#6f5338;--soft:#eee3d2}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:Georgia,"Times New Roman",serif}
+header{padding:28px 18px 20px;text-align:center;border-bottom:1px solid var(--line);background:linear-gradient(180deg,#fffaf0,var(--paper))}
+h1{margin:0;font-size:clamp(30px,5vw,52px);font-weight:500}.tag{margin:8px auto 0;color:var(--muted);font-size:17px}
+.wrap{max-width:1180px;margin:auto;padding:20px}.searchbox{position:sticky;top:0;z-index:3;background:rgba(247,241,229,.97);padding:8px 0 14px}
+input{width:100%;padding:14px 16px;border:1px solid var(--line);border-radius:10px;background:white;font:17px Arial,sans-serif;outline:none}.meta{font:13px Arial,sans-serif;color:var(--muted);margin:8px 2px}
+.grid{display:grid;grid-template-columns:minmax(270px,430px) 1fr;gap:18px;align-items:start}.results{background:var(--panel);border:1px solid var(--line);border-radius:12px;max-height:68vh;overflow:auto}
+.person-row{display:block;width:100%;text-align:left;border:0;border-bottom:1px solid #eadfce;background:transparent;padding:11px 13px;cursor:pointer;color:var(--ink)}.person-row:hover,.person-row.active{background:var(--soft)}
+.person-row b{display:block;font:600 15px Arial,sans-serif}.person-row small{color:var(--muted);font:12px Arial,sans-serif}.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:22px;min-height:320px}
+.card h2{font-size:30px;margin:0 0 6px;font-weight:500}.life{color:var(--muted);margin-bottom:16px}.aka{color:var(--muted);font:13px Arial,sans-serif;margin:4px 0 10px}
+.section{border-top:1px solid var(--line);padding-top:14px;margin-top:14px}.section h3{font:700 13px Arial,sans-serif;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);margin:0 0 8px}
+.rel{display:flex;flex-wrap:wrap;gap:7px}.rel button{border:1px solid var(--line);background:#fff;padding:8px 10px;border-radius:999px;cursor:pointer;color:var(--ink)}.rel button:hover{background:var(--soft)}
+.fact{margin:5px 0}.empty{color:var(--muted);font-style:italic}.status{padding:18px;font:15px Arial,sans-serif;color:var(--muted)}.error{margin:20px;padding:16px;border:1px solid #b76b6b;border-radius:10px;background:#fff5f5;font:15px Arial,sans-serif;color:#6c2d2d}
+@media(max-width:760px){.wrap{padding:12px}.grid{grid-template-columns:1fr}.results{max-height:300px}.card{min-height:0}}
+</style>
+</head>
+<body>
+<header><h1>OurFamilyHistoryRoots</h1><div class="tag">Preserving the stories, memories, and history of those who came before us.</div></header>
+<div class="wrap">
+  <div class="searchbox">
+    <input id="q" placeholder="Search by maiden name, married name, date, or place…" autocomplete="off" disabled>
+    <div class="meta" id="meta">Loading family tree…</div>
+  </div>
+  <div class="grid">
+    <div class="results" id="results"><div class="status">Loading names…</div></div>
+    <div class="card" id="card"><h2>Family Tree</h2><p class="life">Loading family information…</p></div>
+  </div>
+  <div id="error"></div>
+</div>
+<script>
+'use strict';
+const q=document.getElementById('q'),results=document.getElementById('results'),card=document.getElementById('card'),meta=document.getElementById('meta'),errorBox=document.getElementById('error');
+let PEOPLE={}, IDS=[];
+const esc=s=>String(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+const years=p=>{const b=(p?.birth?.date||'').match(/\b(\d{4})\b/),d=(p?.death?.date||'').match(/\b(\d{4})\b/);return [b?b[1]:'',d?d[1]:''].filter(Boolean).join(' – ')};
+function searchable(p){return [p.name,p.primaryName,...(p.aliases||[]),...(p.marriedSurnames||[]),p.birth?.date,p.birth?.place,p.death?.date,p.death?.place].join(' ').toLowerCase()}
+function renderResults(term=''){
+  const t=term.trim().toLowerCase();
+  let ids=t?IDS.filter(id=>searchable(PEOPLE[id]).includes(t)):IDS;
+  ids=ids.slice(0,250);
+  results.innerHTML=ids.length?ids.map(id=>{const p=PEOPLE[id];return `<button class="person-row" data-id="${esc(id)}"><b>${esc(p.name)}</b><small>${esc(years(p)||p.birth?.place||'')}</small></button>`}).join(''):'<div class="status">No matches found.</div>';
+  results.querySelectorAll('.person-row').forEach(b=>b.addEventListener('click',()=>showPerson(b.dataset.id)));
+}
+function relButtons(ids){if(!ids||!ids.length)return '<span class="empty">None listed</span>';return `<div class="rel">${ids.map(id=>`<button data-person="${esc(id)}">${esc(PEOPLE[id]?.name||'Unknown')}</button>`).join('')}</div>`}
+function fact(label,obj){if(!obj||(!obj.date&&!obj.place))return '';return `<div class="fact"><strong>${esc(label)}:</strong> ${esc([obj.date,obj.place].filter(Boolean).join(' • '))}</div>`}
+function showPerson(id){
+  const p=PEOPLE[id]; if(!p)return;
+  const surnames=(p.marriedSurnames||[]).length?`<div class="aka"><strong>Maiden surname:</strong> ${esc(p.maidenSurname)} &nbsp; <strong>Married surname:</strong> ${esc(p.marriedSurnames.join(', '))}</div>`:'';
+  const aliases=(p.aliases||[]).length?`<div class="aka"><strong>Also recorded as:</strong> ${esc(p.aliases.join('; '))}</div>`:'';
+  card.innerHTML=`<h2>${esc(p.name)}</h2><div class="life">${esc(years(p))}</div>${surnames}${aliases}${fact('Born',p.birth)}${fact('Died',p.death)}<div class="section"><h3>Parents</h3>${relButtons(p.parents)}</div><div class="section"><h3>Siblings</h3>${relButtons(p.siblings)}</div><div class="section"><h3>Spouse / Partner</h3>${relButtons(p.spouses)}</div><div class="section"><h3>Children</h3>${relButtons(p.children)}</div>`;
+  card.querySelectorAll('[data-person]').forEach(b=>b.addEventListener('click',()=>showPerson(b.dataset.person)));
+  document.querySelectorAll('.person-row').forEach(b=>b.classList.toggle('active',b.dataset.id===id));
+  if(innerWidth<760)card.scrollIntoView({behavior:'smooth',block:'start'});
+}
+async function start(){
+  try{
+    const response=await fetch('./people.json',{cache:'no-store'});
+    if(!response.ok)throw new Error(`people.json returned ${response.status}`);
+    PEOPLE=await response.json(); IDS=Object.keys(PEOPLE);
+    if(!IDS.length)throw new Error('No people found in people.json');
+    q.disabled=false; meta.textContent=`${IDS.length.toLocaleString()} people in this family archive`;
+    card.innerHTML='<h2>Family Tree</h2><p class="life">Search for a family member, then select their name to explore parents, siblings, spouses, and children.</p>';
+    q.addEventListener('input',()=>renderResults(q.value)); renderResults('');
+  }catch(err){
+    console.error(err);
+    meta.textContent='Family tree could not load';
+    results.innerHTML='<div class="status">The family data file did not load.</div>';
+    card.innerHTML='<h2>Family Tree</h2><p class="life">The family data file did not load.</p>';
+    errorBox.innerHTML=`<div class="error"><strong>Family tree loading error:</strong> ${esc(err.message)}. Make sure <strong>index.html</strong> and <strong>people.json</strong> are both uploaded to the same GitHub folder.</div>`;
+  }
+}
+start();
+</script>
+</body>
+</html>
